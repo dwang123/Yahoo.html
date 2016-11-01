@@ -1,0 +1,136 @@
+<!doctype HTML>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="appleStocks.css" rel="stylesheet">
+	<link rel="icon" href="/favicon.ico">
+	<!--<script src="js/yahoofinance.js"></script> -->
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	    <script type="text/javascript">
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['corechart']});
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      var data = getData("year");
+      var options = {'title':'How Much Pizza I Ate Last Night',
+                       'width':400,
+                       'height':300,
+                       'titleTextStyle': {color:'white', fontName:'GillSans'},
+                       'legendTextStyle': {color:'white', fontName:'GillSans'},
+                       'chartArea.width': 200,
+                       'legend': 'none',
+		};
+      function drawChart() {
+        // Create the data table.
+        var chartData = google.visualization.arrayToDataTable(data);
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(chartData, options);
+      }
+      function getData(dataRange) {
+      	var dataArray = [
+      		['Date', 'Stock Value'],
+      	];
+      	
+      	var BASE_URL = 'https://query.yahooapis.com/v1/public/yql?q=';
+		var yql_query;
+      	if (dataRange === "year") {
+      		yql_query = 'select * from yahoo.finance.historicaldata where symbol = "AAPL" and startDate = "2015-09-29" and endDate = "2016-09-29"';
+      	} else if (dataRange === "halfyear") {
+      		yql_query = 'select * from yahoo.finance.historicaldata where symbol = "AAPL" and startDate = "2016-03-29" and endDate = "2016-09-29"';
+      	};
+		var yql_query_str = encodeURI(BASE_URL+yql_query);
+      	var query_str_final = yql_query_str + "&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+      	$.getJSON(query_str_final, function(data) {
+			var stockArray = data.query.results.quote;
+			for (var i = 0; i < stockArray.length; i++) {
+				var currentObject = stockArray[i];
+				//Push values of currentObject.date and currentObject.Close into dataArray
+				var pushedArray = [currentObject.Date, parseFloat(currentObject.Close)];
+				dataArray[i+1] = pushedArray;
+			}
+			console.log(dataArray);
+        // Create the data table.
+        var chartData = google.visualization.arrayToDataTable(dataArray);
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(chartData, options);
+		});
+      };
+      function buttonPressed(buttonTitle) {
+      	data = getData(buttonTitle);
+      };
+    </script>
+
+
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class = "container">
+      <div class = "navbar-header">
+        <button type = "button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Apple Stocks</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse in" aria-expanded="true">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+  </nav>
+
+<div class="container">
+	<div class="row" >
+		<div class="col-md-6 text-center">
+			<h2>Apple, Inc.</h2>
+			<p>Think Different.</p>
+				<center><div id="chart_div"></div></center>
+		</div>
+				<div class="col-md-6 text-center">
+				  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1000px-Apple_logo_black.svg.png" style="width:250px;height:250px;">
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+		
+
+				</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6 text-center">
+			  <button type="button" class="btn btn-default" onclick="buttonPressed('year')">1 year</button>
+			  <button type="button" class="btn btn-default" onclick="buttonPressed('halfyear')">6 months</button>
+			  	
+		</div>
+			<div class="col-md-6 text-center">
+<p id ="companyDescription">
+      Apple Inc. (Apple), incorporated on January 3, 1977, designs, manufactures and markets mobile communication and media devices, personal computers and portable digital music players and sells a variety of related software, services, peripherals, networking solutions and third-party digital content and applications. The Company's products and services include iPhone, iPad, Mac, iPod, Apple TV, a portfolio of consumer and professional software applications, the iOS and OS X operating systems, iCloud and a variety of accessory, service and support offerings. The Company offers a range of mobile communication and media devices, personal computing products and portable digital music players, as well as a variety of related software, services, peripherals, networking solutions and third-party hardware and software products. In addition, the Company offers its own software products, including iOS, the Company's mobile operating system; OS X, the Company's Mac operating system; and server and application software. The Company's primary products include iPhone, iPad, Mac, iPod, iTunes, Mac App Store, iCloud, Operating System Software, Application Software and Other Application Software.
+      </p>
+			</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<p id="change"></p>
+		</div>
+	</div>
+</div>
+
+
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+</script>
+</body>
+</html>
